@@ -1,20 +1,27 @@
 import os
 import json
-from firebase_admin import credentials, firestore, initialize_app
+import logging
+import firebase_admin
+from firebase_admin import firestore
 import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize Firebase
-# Note: User needs to provide serviceAccountKey.json or use ADC
-try:
-    if not len(initialize_app()):
-        initialize_app()
-except:
-    pass
+logger = logging.getLogger(__name__)
 
-db = firestore.client()
+# Initialize Firebase using Application Default Credentials (ADC) or
+# a service account key file pointed to by GOOGLE_APPLICATION_CREDENTIALS.
+try:
+    firebase_admin.get_app()
+except ValueError:
+    firebase_admin.initialize_app()
+
+try:
+    db = firestore.client()
+except Exception as e:
+    logger.warning("Firestore client could not be initialised: %s", e)
+    db = None
 
 # Configure LLM (Gemini)
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -62,11 +69,15 @@ class ArchieParser:
 
     @staticmethod
     def save_project(project_id: str, data: dict):
+        if db is None:
+            raise RuntimeError("Firestore is not initialised. Check GOOGLE_APPLICATION_CREDENTIALS.")
         doc_ref = db.collection("projects").document(project_id)
         doc_ref.set(data, merge=True)
         return project_id
 
     @staticmethod
     def get_project(project_id: str):
+        if db is None:
+            raise RuntimeError("Firestore is not initialised. Check GOOGLE_APPLICATION_CREDENTIALS.")
         doc_ref = db.collection("projects").document(project_id)
         return doc_ref.get().to_dict()
