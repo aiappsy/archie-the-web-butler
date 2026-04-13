@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+playwright
+beautifulsoup4
+firebase-admin
+pydantic
+python-dotenv
+openai
+anthropic
+google-generativeai
+fpdf2
