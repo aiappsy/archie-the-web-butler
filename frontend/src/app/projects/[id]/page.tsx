@@ -1,6 +1,7 @@
 import React from 'react';
 
-export default function ProjectWorkspace({ params }: { params: { id: string } }) {
+export default async function ProjectWorkspace({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <main className="min-h-screen p-8 md:p-12 space-y-8">
       {/* Breadcrumbs & Navigation */}
@@ -14,7 +15,7 @@ export default function ProjectWorkspace({ params }: { params: { id: string } })
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Project: Legacy Corp (2004)</h1>
-          <p className="text-slate-400">Reconstructing semantic architecture for Webflow migration.</p>
+          <p className="text-slate-400">Reconstructing semantic architecture for Webflow migration. <span className="font-mono text-xs text-slate-600">#{id}</span></p>
         </div>
         <div className="flex gap-3">
           <button className="bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-sm font-semibold transition-all">

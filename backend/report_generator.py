@@ -82,4 +82,4 @@ class ReportGenerator:
             pdf.multi_cell(0, 8, rec)
         
         pdf.output(output_path)
-        return output_path
+        return {"path": output_path}

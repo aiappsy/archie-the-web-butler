@@ -38,6 +38,9 @@ class ArchieCrawler:
                 
                 try:
                     response = await page.goto(url, timeout=30000)
+                    if response is None:
+                        self.results["broken_links"].append({"url": url, "error": "No response received"})
+                        continue
                     if response.status != 200:
                         self.results["broken_links"].append({"url": url, "status": response.status})
                         continue

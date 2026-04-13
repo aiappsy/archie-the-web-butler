@@ -8,10 +8,9 @@ class CanvaBridge:
     def __init__(self, access_token: str = None):
         self.access_token = access_token or os.getenv("CANVA_ACCESS_TOKEN")
         self.base_url = "https://api.canva.com/v1"
-        self.headers = {
-            "Authorization": f"Bearer {self.access_token}",
-            "Content-Type": "application/json"
-        }
+        self.headers = {"Content-Type": "application/json"}
+        if self.access_token:
+            self.headers["Authorization"] = f"Bearer {self.access_token}"
 
     async def push_media_to_canva(self, project_id: str, media_list: List[Dict]):
         """
