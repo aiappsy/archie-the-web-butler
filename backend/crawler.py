@@ -1,9 +1,12 @@
 import asyncio
+import logging
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import json
 import os
+
+logger = logging.getLogger(__name__)
 
 class ArchieCrawler:
     def __init__(self, base_url):
@@ -33,11 +36,14 @@ class ArchieCrawler:
                 if url in self.visited:
                     continue
                 
-                print(f"Crawling: {url}")
+                logger.info("Crawling: %s", url)
                 self.visited.add(url)
                 
                 try:
                     response = await page.goto(url, timeout=30000)
+                    if response is None:
+                        self.results["broken_links"].append({"url": url, "error": "No response received"})
+                        continue
                     if response.status != 200:
                         self.results["broken_links"].append({"url": url, "status": response.status})
                         continue
@@ -78,7 +84,7 @@ class ArchieCrawler:
 
                     count += 1
                 except Exception as e:
-                    print(f"Error crawling {url}: {e}")
+                    logger.error("Error crawling %s: %s", url, e)
                     self.results["broken_links"].append({"url": url, "error": str(e)})
 
             await browser.close()

@@ -58,27 +58,37 @@ archie-web-butler/
 ## 🚦 Getting Started
 
 ### Backend Setup
-1. Navigate to the backend directory:
+1. From the **project root**, create and activate a virtual environment:
    ```bash
-   cd backend
+   python -m venv backend/venv
+   # macOS / Linux
+   source backend/venv/bin/activate
+   # Windows
+   backend\venv\Scripts\activate
    ```
-2. Create and activate a virtual environment:
+2. Install dependencies:
    ```bash
-   python -m venv venv
-   venv\Scripts\activate
+   pip install -r backend/requirements.txt
    ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Install Playwright browsers:
+3. Install Playwright browsers:
    ```bash
    playwright install chromium
    ```
-5. Set up your `.env` with `GOOGLE_API_KEY`, `WEBFLOW_API_TOKEN`, and `CANVA_ACCESS_TOKEN`.
-6. Start the engine:
+4. Copy the sample env file and fill in your credentials:
    ```bash
-   uvicorn main:app --reload
+   cp backend/.env.example backend/.env
+   ```
+   | Variable | Description |
+   | :--- | :--- |
+   | `GOOGLE_API_KEY` | Gemini API key from Google AI Studio |
+   | `GOOGLE_APPLICATION_CREDENTIALS` | Path to Firebase service-account JSON (or use GCP ADC) |
+   | `CANVA_ACCESS_TOKEN` | Canva Connect API access token |
+   | `WEBFLOW_API_TOKEN` | Webflow Data API v2 token |
+   | `ALLOWED_ORIGINS` | Comma-separated frontend origins for CORS (default: `http://localhost:3000`) |
+
+5. Start the engine from the **project root**:
+   ```bash
+   uvicorn backend.main:app --reload
    ```
 
 ### Frontend Setup

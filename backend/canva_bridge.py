@@ -1,17 +1,19 @@
 import requests
 import os
+import logging
 from typing import List, Dict
 import asyncio
 from .parser import ArchieParser
+
+logger = logging.getLogger(__name__)
 
 class CanvaBridge:
     def __init__(self, access_token: str = None):
         self.access_token = access_token or os.getenv("CANVA_ACCESS_TOKEN")
         self.base_url = "https://api.canva.com/v1"
-        self.headers = {
-            "Authorization": f"Bearer {self.access_token}",
-            "Content-Type": "application/json"
-        }
+        self.headers = {"Content-Type": "application/json"}
+        if self.access_token:
+            self.headers["Authorization"] = f"Bearer {self.access_token}"
 
     async def push_media_to_canva(self, project_id: str, media_list: List[Dict]):
         """
@@ -36,6 +38,29 @@ class CanvaBridge:
         # Update project in Firestore with Canva mapping
         ArchieParser.save_project(project_id, {"canva_assets": results})
         return results
+
+    async def _upload_image_url(self, image_url: str, title: str = "Legacy Asset") -> dict:
+        """
+        Private method to upload an image URL to Canva Connect Assets API.
+        """
+        if not self.access_token:
+            logger.warning("No Canva Access Token provided. Mocking upload...")
+            return {"id": "mock_canva_id_" + os.urandom(4).hex(), "status": "success"}
+
+        payload = {
+            "asset_type": "image",
+            "url": image_url,
+            "title": title[:50]  # Canva title limit
+        }
+
+        try:
+            # TODO: uncomment once Canva Connect API credentials are configured
+            # response = requests.post(f"{self.base_url}/assets/uploads", headers=self.headers, json=payload)
+            # response.raise_for_status()
+            # return response.json()
+            return {"id": "real_canva_id_placeholder", "status": "success"}
+        except Exception as e:
+            return {"id": None, "status": f"error: {str(e)}"}
 
     async def create_autofill_job(self, project_id: str, template_id: str):
         """
@@ -63,7 +88,7 @@ class CanvaBridge:
         }
 
         if not self.access_token:
-            print("Warning: No Canva Access Token. Mocking autofill job...")
+            logger.warning("No Canva Access Token. Mocking autofill job...")
             return {
                 "job_id": "mock_job_" + os.urandom(4).hex(),
                 "status": "success",
@@ -76,33 +101,13 @@ class CanvaBridge:
         }
 
         try:
+            # TODO: uncomment once Canva Connect API credentials are configured
             # response = requests.post(f"{self.base_url}/autofill", headers=self.headers, json=payload)
             # response.raise_for_status()
             # return response.json()
             return {"job_id": "real_job_id_placeholder", "status": "success"}
         except Exception as e:
             return {"error": f"Autofill failed: {str(e)}"}
-        """
-        Private method to handle the actual Canva API request.
-        """
-        if not self.access_token:
-            print("Warning: No Canva Access Token provided. Mocking upload...")
-            return {"id": "mock_canva_id_" + os.urandom(4).hex(), "status": "success"}
-
-        payload = {
-            "asset_type": "image",
-            "url": image_url,
-            "title": title[:50] # Canva title limit
-        }
-        
-        try:
-            # This is a representative call based on Canva Connect API docs
-            # response = requests.post(f"{self.base_url}/assets/uploads", headers=self.headers, json=payload)
-            # response.raise_for_status()
-            # return response.json()
-            return {"id": "real_canva_id_placeholder", "status": "success"}
-        except Exception as e:
-            return {"id": None, "status": f"error: {str(e)}"}
 
 if __name__ == "__main__":
     # Internal test

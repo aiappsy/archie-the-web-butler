@@ -1,17 +1,21 @@
 import requests
 import json
 import os
+import logging
 from .parser import ArchieParser
+
+logger = logging.getLogger(__name__)
 
 class WebflowConnector:
     def __init__(self, api_token: str = None):
         self.api_token = api_token or os.getenv("WEBFLOW_API_TOKEN")
         self.base_url = "https://api.webflow.com/v2"
         self.headers = {
-            "Authorization": f"Bearer {self.api_token}",
             "Content-Type": "application/json",
-            "Accept-Version": "2.0.0"
+            "Accept-Version": "2.0.0",
         }
+        if self.api_token:
+            self.headers["Authorization"] = f"Bearer {self.api_token}"
 
     async def export_reconstruction(self, project_id: str, collection_id: str):
         """
@@ -55,7 +59,7 @@ class WebflowConnector:
         Private method to call Webflow API.
         """
         if not self.api_token:
-            print("Warning: No Webflow API Token. Mocking export...")
+            logger.warning("No Webflow API Token. Mocking export...")
             return {"id": f"mock_item_{os.urandom(4).hex()}", "status": "success"}
 
         url = f"{self.base_url}/collections/{collection_id}/items"
@@ -66,6 +70,7 @@ class WebflowConnector:
         }
 
         try:
+            # TODO: uncomment once Webflow API credentials are configured
             # response = requests.post(url, headers=self.headers, json=payload)
             # response.raise_for_status()
             # return response.json()
