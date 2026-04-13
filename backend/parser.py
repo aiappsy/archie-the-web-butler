@@ -20,7 +20,7 @@ except ValueError:
 try:
     db = firestore.client()
 except Exception as e:
-    logger.warning("Firestore client could not be initialised: %s", e)
+    logger.warning("Firestore client could not be initialized: %s", e)
     db = None
 
 # Configure LLM (Gemini)
@@ -60,7 +60,7 @@ class ArchieParser:
         Output EXACT JSON only.
         """
         
-        response = model.generate_content(prompt)
+        response = await model.generate_content_async(prompt)
         try:
             json_str = response.text.replace("```json", "").replace("```", "").strip()
             return json.loads(json_str)
@@ -70,7 +70,7 @@ class ArchieParser:
     @staticmethod
     def save_project(project_id: str, data: dict):
         if db is None:
-            raise RuntimeError("Firestore is not initialised. Check GOOGLE_APPLICATION_CREDENTIALS.")
+            raise RuntimeError("Firestore is not initialized. Check GOOGLE_APPLICATION_CREDENTIALS.")
         doc_ref = db.collection("projects").document(project_id)
         doc_ref.set(data, merge=True)
         return project_id
@@ -78,6 +78,6 @@ class ArchieParser:
     @staticmethod
     def get_project(project_id: str):
         if db is None:
-            raise RuntimeError("Firestore is not initialised. Check GOOGLE_APPLICATION_CREDENTIALS.")
+            raise RuntimeError("Firestore is not initialized. Check GOOGLE_APPLICATION_CREDENTIALS.")
         doc_ref = db.collection("projects").document(project_id)
         return doc_ref.get().to_dict()

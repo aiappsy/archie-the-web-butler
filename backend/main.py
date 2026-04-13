@@ -66,7 +66,11 @@ def _is_safe_url(url: str) -> bool:
             return not any(addr in net for net in _PRIVATE_RANGES)
         except ValueError:
             # hostname – basic checks for localhost variants
-            if host.lower() in ("localhost", "metadata.google.internal"):
+            if host.lower() in (
+                "localhost",
+                "metadata.google.internal",
+                "169.254.169.254",  # AWS/Azure metadata service as hostname
+            ):
                 return False
         return True
     except Exception:
